@@ -26,15 +26,11 @@ from environment.dqn_agent_wrapper import DQNAgentWrapper
 from pypokerengine.api.emulator import Emulator
 import numpy as np
 import sys
-<<<<<<< HEAD
-=======
 import argparse
->>>>>>> master
 import copy
 
 np.random.seed(12)
 
-<<<<<<< HEAD
 N_AGENTS = 4
 BB_SIZE = 10
 STACK_SIZE = 200
@@ -48,7 +44,7 @@ USE_ROLL_INSTEAD_OF_WIN_COUNT = False
 PERSISTENT_STACKS = False
 EVAL_AGAINST_RANDOM = False  # False = evaluates against older version (EVAL_EVERY_N_EPISODES episodes older)
 
-=======
+
 def parse_cli():
     parser = argparse.ArgumentParser(description='Train a PokerOmega instance with the given parameters')
     parser.add_argument('--agents', '-a', default='4', dest='n_agents',type=int, help = '(default: %(default)s)')
@@ -83,7 +79,6 @@ EVAL_AGAINST_RANDOM = args.random_eval  # False = evaluates against older versio
 E_MIN = args.e_min
 E_DECAY = args.e_decay
 GAMMA = args.gamma
->>>>>>> master
 
 def run_episode(agents):
     emulator = Emulator()
@@ -162,7 +157,6 @@ def copy_agent(agent):
     return copied
     #return agent
 
-<<<<<<< HEAD
 if __name__ == '__main__':
     # used only for calculating # of features
     _sample_features = DQNAgent(3, 3, N_AGENTS).make_features(SAMPLE_ACTIONS, SAMPLE_HOLE_CARDS, SAMPLE_STATE)
@@ -204,9 +198,9 @@ if __name__ == '__main__':
         if EVAL_AGAINST_RANDOM:
             if e == N_EPISODES - 1 or e % EVAL_EVERY_N_EPISODES == 0:
                 if e != 0:
-=======
-def make_random_agents():
-    return [DQNAgent(STATE_SIZE, N_ACTIONS, N_AGENTS, E_MIN, E_DECAY, GAMMA)] * N_AGENTS
+
+                    def make_random_agents():
+                        return [DQNAgent(STATE_SIZE, N_ACTIONS, N_AGENTS, E_MIN, E_DECAY, GAMMA)] * N_AGENTS
 
 # # used only for calculating # of features
 # _sample_features = DQNAgent(3, 3, N_AGENTS).make_features(SAMPLE_ACTIONS, SAMPLE_HOLE_CARDS, SAMPLE_STATE)
@@ -255,53 +249,16 @@ for e in range(N_EPISODES):
                     (winner_counts[0] / n_games_played) * 100))
                 print('====')
 
-    else:
-        if e == N_EPISODES - 1 or e % EVAL_EVERY_N_EPISODES == 0:  # run 3x old versions against 1 new version
-            if e != 0:
-                if e % 100 == 0:
->>>>>>> master
-                    print('====')
-                    print('Final evaluation')
-                    _, final_state, winner_counts, n_games_played = run_episode([best_current_agent] + oldest_agents[:-1])
-                    print('\nNewest best won against oldest {} percent of games'.format(
-                        (winner_counts[0] / n_games_played) * 100))
-                    print('====')
-<<<<<<< HEAD
+            else:
+                print('====')
+                print('Evaluating')
+                _, final_state, winner_counts, n_games_played = run_episode([best_current_agent] + old_agents[:-1])
+                print('\nNew won against old {} percent of games'.format(
+                     (winner_counts[0] / n_games_played) * 100))
+                print('====')
 
-        else:
-            if e == N_EPISODES - 1 or e % EVAL_EVERY_N_EPISODES == 0:  # run 3x old versions against 1 new version
-                if e != 0:
-                    if e % 100 == 0:
-                        print('====')
-                        print('Final evaluation')
-                        _, final_state, winner_counts, n_games_played = run_episode([best_current_agent] + oldest_agents[:-1])
-                        print('\nNewest best won against oldest {} percent of games'.format(
-                            (winner_counts[0] / n_games_played) * 100))
-                        print('====')
-                    else:
-                        print('====')
-                        print('Evaluating')
-                        _, final_state, winner_counts, n_games_played = run_episode([best_current_agent] + old_agents[:-1])
-                        print('\nNew won against old {} percent of games'.format(
-                            (winner_counts[0] / n_games_played) * 100))
-                        print('====')
-
-                        for agent_idx in range(N_AGENTS):
-                            old_agents[agent_idx] = copy_agent(best_current_agent)
-
-    agents[0].save('pokerai_rl.h5')
-=======
-                else:
-                    print('====')
-                    print('Evaluating')
-                    _, final_state, winner_counts, n_games_played = run_episode([best_current_agent] + old_agents[:-1])
-                    print('\nNew won against old {} percent of games'.format(
-                        (winner_counts[0] / n_games_played) * 100))
-                    print('====')
-
-                    for agent_idx in range(N_AGENTS):
-                        old_agents[agent_idx] = copy_agent(best_current_agent)
+                for agent_idx in range(N_AGENTS):
+                    old_agents[agent_idx] = copy_agent(best_current_agent)
 
 if args.output_filename:
     agents[0].save(args.output_filename + '.h5')
->>>>>>> master
