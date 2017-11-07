@@ -7,17 +7,18 @@ from sklearn.preprocessing import OneHotEncoder
 from keras.layers import Dense, SimpleRNN
 from keras.models import Sequential
 from keras.optimizers import Adam
+from keras.models import model_from_json
 
 
 class DQNAgent:
-    def __init__(self, state_size, action_size, num_agents):
-        self.state_size = 134
+    def __init__(self, state_size, action_size, num_agents, e_min, e_decay, gamma):
+        self.state_size = state_size
         self.action_size = action_size
         self.memory = deque()
-        self.gamma = 0.95  # discount rate
+        self.gamma = gamma  # discount rate
         self.epsilon = 1.0  # exploration rate
-        self.epsilon_min = 0.01
-        self.epsilon_decay = 0.998
+        self.epsilon_min = e_min
+        self.epsilon_decay = e_decay
         self.learning_rate = 0.001
         self.model = self._build_model()
         self.num_agents = num_agents
@@ -25,10 +26,11 @@ class DQNAgent:
     def _build_model(self):
         # Neural Net for Deep-Q learning Model
         model = Sequential()
-        model.add(SimpleRNN(64, input_shape=(1, self.state_size), activation='relu'))
-        model.add(Dense(128, activation='relu'))
+        model.add(SimpleRNN(256, input_shape=(1, self.state_size), activation='relu'))
+        model.add(Dense(64, activation='relu'))
+        model.add(Dense(16, activation='relu'))
         model.add(Dense(self.action_size, activation='linear'))
-        model.compile(loss='mse',
+        model.compile(loss='mse',       # if you change this, make sure to change it in set_model
                       optimizer=Adam(lr=self.learning_rate))
         return model
 
@@ -178,3 +180,9 @@ class DQNAgent:
             suits.append(card[0])
             values.append(int(card[1:]))
         return suits, values
+
+    def set_model(self, model, weights):
+        self.model = Sequential.from_config(model)
+        self.model.set_weights(weights)
+        self.model.compile(loss='mse',
+                           optimizer=Adam(lr=self.learning_rate))

@@ -31,20 +31,6 @@ import copy
 
 np.random.seed(12)
 
-N_AGENTS = 4
-BB_SIZE = 10
-STACK_SIZE = 200
-N_EPISODES = 2000
-GAMES_PER_EPISODE = 100
-REPLAY_EVERY_N_GAMES = 20
-BATCH_SIZE = REPLAY_EVERY_N_GAMES
-N_ACTIONS = 8
-EVAL_EVERY_N_EPISODES = 20
-USE_ROLL_INSTEAD_OF_WIN_COUNT = False
-PERSISTENT_STACKS = False
-EVAL_AGAINST_RANDOM = False  # False = evaluates against older version (EVAL_EVERY_N_EPISODES episodes older)
-
-
 def parse_cli():
     parser = argparse.ArgumentParser(description='Train a PokerOmega instance with the given parameters')
     parser.add_argument('--agents', '-a', default='4', dest='n_agents',type=int, help = '(default: %(default)s)')
