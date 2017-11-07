@@ -146,9 +146,9 @@ def copy_agent(agent):
 def make_random_agents():
     return [DQNAgent(STATE_SIZE, N_ACTIONS, N_AGENTS, E_MIN, E_DECAY, GAMMA)] * N_AGENTS
 
-# used only for calculating # of features
-#_sample_features = DQNAgent(3, 3, N_AGENTS).make_features(SAMPLE_ACTIONS, SAMPLE_HOLE_CARDS, SAMPLE_STATE)
-#STATE_SIZE = len(_sample_features)
+# # used only for calculating # of features
+# _sample_features = DQNAgent(3, 3, N_AGENTS).make_features(SAMPLE_ACTIONS, SAMPLE_HOLE_CARDS, SAMPLE_STATE)
+# STATE_SIZE = len(_sample_features)
 
 oldest_agents = make_random_agents()
 old_agents = make_random_agents()
