@@ -143,54 +143,12 @@ def copy_agent(agent):
     return copied
     #return agent
 
-if __name__ == '__main__':
-    # used only for calculating # of features
-    _sample_features = DQNAgent(3, 3, N_AGENTS).make_features(SAMPLE_ACTIONS, SAMPLE_HOLE_CARDS, SAMPLE_STATE)
-    STATE_SIZE = len(_sample_features)
+def make_random_agents():
+    return [DQNAgent(STATE_SIZE, N_ACTIONS, N_AGENTS, E_MIN, E_DECAY, GAMMA)] * N_AGENTS
 
-    oldest_agents = [DQNAgent(STATE_SIZE, N_ACTIONS, N_AGENTS)] * N_AGENTS
-    old_agents = [DQNAgent(STATE_SIZE, N_ACTIONS, N_AGENTS)] * N_AGENTS
-    agents = [DQNAgent(STATE_SIZE, N_ACTIONS, N_AGENTS)] * N_AGENTS
-
-    if len(sys.argv) >= 3 and sys.argv[1] == '-l':  # load provided filename as weights
-        for a in agents:
-            a.load(sys.argv[2])
-
-    hyperparam_list = {'games_per_episode': GAMES_PER_EPISODE, 'replay': REPLAY_EVERY_N_GAMES, 'n_episodes': N_EPISODES,
-                       'n_agents': N_AGENTS, 'epsilon_min': agents[0].epsilon_min,
-                       'epsilon_decay': agents[0].epsilon_decay,
-                       'gamma': agents[0].gamma}
-    print(hyperparam_list)
-
-    for e in range(N_EPISODES):
-        oldest_agents = [DQNAgent(STATE_SIZE, N_ACTIONS, N_AGENTS)] * N_AGENTS
-        new_agents, final_state, winner_counts, n_games_played = run_episode(agents)
-
-        print('\nEpisode {} over'.format(e))
-        # Pick best model
-        highest_idx = None
-        if USE_ROLL_INSTEAD_OF_WIN_COUNT:
-            highest_roll = 0
-            for seat in final_state:
-                if seat.stack > highest_roll:
-                    highest_roll = seat.stack
-                    highest_idx = seat.uuid
-        else:
-            highest_idx = np.argmax(winner_counts)
-        #new_agents[highest_idx].model.reset_states()# clear memory of RNN
-        best_current_agent = copy_agent(new_agents[highest_idx])
-        agents = [copy_agent(best_current_agent)] * N_AGENTS
-
-        if EVAL_AGAINST_RANDOM:
-            if e == N_EPISODES - 1 or e % EVAL_EVERY_N_EPISODES == 0:
-                if e != 0:
-
-                    def make_random_agents():
-                        return [DQNAgent(STATE_SIZE, N_ACTIONS, N_AGENTS, E_MIN, E_DECAY, GAMMA)] * N_AGENTS
-
-# # used only for calculating # of features
-# _sample_features = DQNAgent(3, 3, N_AGENTS).make_features(SAMPLE_ACTIONS, SAMPLE_HOLE_CARDS, SAMPLE_STATE)
-# STATE_SIZE = len(_sample_features)
+# used only for calculating # of features
+#_sample_features = DQNAgent(3, 3, N_AGENTS).make_features(SAMPLE_ACTIONS, SAMPLE_HOLE_CARDS, SAMPLE_STATE)
+#STATE_SIZE = len(_sample_features)
 
 oldest_agents = make_random_agents()
 old_agents = make_random_agents()
@@ -235,16 +193,26 @@ for e in range(N_EPISODES):
                     (winner_counts[0] / n_games_played) * 100))
                 print('====')
 
-            else:
-                print('====')
-                print('Evaluating')
-                _, final_state, winner_counts, n_games_played = run_episode([best_current_agent] + old_agents[:-1])
-                print('\nNew won against old {} percent of games'.format(
-                     (winner_counts[0] / n_games_played) * 100))
-                print('====')
+    else:
+        if e == N_EPISODES - 1 or e % EVAL_EVERY_N_EPISODES == 0:  # run 3x old versions against 1 new version
+            if e != 0:
+                if e % 100 == 0:
+                    print('====')
+                    print('Final evaluation')
+                    _, final_state, winner_counts, n_games_played = run_episode([best_current_agent] + oldest_agents[:-1])
+                    print('\nNewest best won against oldest {} percent of games'.format(
+                        (winner_counts[0] / n_games_played) * 100))
+                    print('====')
+                else:
+                    print('====')
+                    print('Evaluating')
+                    _, final_state, winner_counts, n_games_played = run_episode([best_current_agent] + old_agents[:-1])
+                    print('\nNew won against old {} percent of games'.format(
+                        (winner_counts[0] / n_games_played) * 100))
+                    print('====')
 
-                for agent_idx in range(N_AGENTS):
-                    old_agents[agent_idx] = copy_agent(best_current_agent)
+                    for agent_idx in range(N_AGENTS):
+                        old_agents[agent_idx] = copy_agent(best_current_agent)
 
 if args.output_filename:
     agents[0].save(args.output_filename + '.h5')
