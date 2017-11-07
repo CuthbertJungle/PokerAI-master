@@ -11,14 +11,14 @@ from keras.models import model_from_json
 
 
 class DQNAgent:
-    def __init__(self, state_size, action_size, num_agents, e_min, e_decay, gamma):
-        self.state_size = state_size
+    def __init__(self, state_size, action_size, num_agents):
+        self.state_size = 134
         self.action_size = action_size
         self.memory = deque()
-        self.gamma = gamma  # discount rate
+        self.gamma = 0.95  # discount rate
         self.epsilon = 1.0  # exploration rate
-        self.epsilon_min = e_min
-        self.epsilon_decay = e_decay
+        self.epsilon_min = 0.01
+        self.epsilon_decay = 0.998
         self.learning_rate = 0.001
         self.model = self._build_model()
         self.num_agents = num_agents
